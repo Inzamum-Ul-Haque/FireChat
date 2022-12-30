@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   serverTimestamp,
@@ -43,13 +44,13 @@ const Search = () => {
         ? currentUser.uid + user.uid
         : user.uid + currentUser.uid;
     try {
-      const res = getDocs(db, "chats", combinedId);
+      const res = await getDoc(doc(db, "chats", combinedId));
 
       if (!res.exists()) {
         // create a new chat in chats collection
         await setDoc(doc(db, "chats", combinedId), { messages: [] });
-        // create a new user chat
 
+        // create a new user chat
         await updateDoc(doc(db, "userChats", currentUser.uid), {
           [combinedId + "userInfo"]: {
             uid: user.uid,
@@ -70,8 +71,12 @@ const Search = () => {
       }
     } catch (error) {
       setError(true);
+      console.log(error);
     }
     // create user chats
+
+    setUser(null);
+    setUsername("");
   };
 
   return (
@@ -82,6 +87,7 @@ const Search = () => {
           placeholder="Find a user"
           onKeyDown={handleKey}
           onChange={(e) => setUsername(e.target.value)}
+          value={username}
         />
       </div>
       {error && <span>User not found!</span>}
