@@ -7,9 +7,13 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 function App() {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, loading } = useContext(AuthContext);
 
   const PrivateRoute = ({ children }) => {
+    if (loading) {
+      return <div>loading ...</div>;
+    }
+
     if (!currentUser) {
       return <Navigate to="/login" />;
     }

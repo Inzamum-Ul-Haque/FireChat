@@ -15,20 +15,23 @@ import { AuthContext } from "../../context/AuthContext";
 
 const Search = () => {
   const [username, setUsername] = useState("");
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(null);
   const [error, setError] = useState(false);
+
   const { currentUser } = useContext(AuthContext);
 
   const handleSearch = async () => {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("displayName", "==", username));
+    const q = query(
+      collection(db, "users"),
+      where("displayName", "==", username)
+    );
 
     try {
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         setUser(doc.data());
       });
-    } catch (error) {
+    } catch (err) {
       setError(true);
     }
   };
@@ -38,7 +41,7 @@ const Search = () => {
   };
 
   const handleSelect = async () => {
-    // check if the group chat exists, if not create a new one
+    //check whether the group(chats in firestore) exists, if not create
     const combinedId =
       currentUser.uid > user.uid
         ? currentUser.uid + user.uid
@@ -47,12 +50,12 @@ const Search = () => {
       const res = await getDoc(doc(db, "chats", combinedId));
 
       if (!res.exists()) {
-        // create a new chat in chats collection
+        //create a chat in chats collection
         await setDoc(doc(db, "chats", combinedId), { messages: [] });
 
-        // create a new user chat
+        //create user chats
         await updateDoc(doc(db, "userChats", currentUser.uid), {
-          [combinedId + "userInfo"]: {
+          [combinedId + ".userInfo"]: {
             uid: user.uid,
             displayName: user.displayName,
             photoURL: user.photoURL,
@@ -61,7 +64,7 @@ const Search = () => {
         });
 
         await updateDoc(doc(db, "userChats", user.uid), {
-          [combinedId + "userInfo"]: {
+          [combinedId + ".userInfo"]: {
             uid: currentUser.uid,
             displayName: currentUser.displayName,
             photoURL: currentUser.photoURL,
@@ -69,11 +72,9 @@ const Search = () => {
           [combinedId + ".date"]: serverTimestamp(),
         });
       }
-    } catch (error) {
-      setError(true);
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
-    // create user chats
 
     setUser(null);
     setUsername("");

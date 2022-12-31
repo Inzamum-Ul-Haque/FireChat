@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
   const [error, setError] = useState(false);
   const navigate = useNavigate();
+  const { signInUser } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +14,8 @@ const Login = () => {
     const password = e.target[1].value;
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInUser(email, password);
+      // await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (error) {
       setError(true);

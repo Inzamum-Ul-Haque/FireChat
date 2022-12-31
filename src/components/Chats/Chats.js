@@ -6,7 +6,6 @@ import { db } from "../../firebase/firebase";
 
 const Chats = () => {
   const [chats, setChats] = useState([]);
-
   const { currentUser } = useContext(AuthContext);
   const { dispatch } = useContext(ChatContext);
 
@@ -28,23 +27,27 @@ const Chats = () => {
     dispatch({ type: "CHANGE_USER", payload: u });
   };
 
+  console.log(Object.entries(chats));
+  // console.log(chats);
+
   return (
     <div className="chats">
-      {Object.entries(chats)
-        ?.sort((a, b) => b[1].date - a[1].date)
-        .map((chat) => (
-          <div
-            className="userChat"
-            key={chat[0]}
-            onClick={() => handleSelect(chat[1])}
-          >
-            <img src={chat[1]?.photoURL} alt="avatar" />
-            <div className="userChatInfo">
-              <span>{chat[1]?.displayName}</span>
-              <p>{chat[1]?.lastMessage?.text}</p>
+      {chats &&
+        Object.entries(chats)
+          ?.sort((a, b) => b[1].date - a[1].date)
+          .map((chat) => (
+            <div
+              className="userChat"
+              key={chat[0]}
+              onClick={() => handleSelect(chat[1].userInfo)}
+            >
+              <img src={chat[1]?.userInfo.photoURL} alt="avatar" />
+              <div className="userChatInfo">
+                <span>{chat[1]?.userInfo.displayName}</span>
+                <p>{chat[1]?.lastMessage?.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
     </div>
   );
 };

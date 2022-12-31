@@ -1,29 +1,32 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "../../style.scss";
 import addAvatar from "../../img/addAvatar.png";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, db, storage } from "../../firebase/firebase";
+import { updateProfile } from "firebase/auth";
+import { db, storage } from "../../firebase/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const Register = () => {
   const [error, setError] = useState(false);
+  const { createUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
     const file = e.target[3].files[0];
 
     try {
-      const res = await createUserWithEmailAndPassword(auth, email, password);
+      //Create user
+      const res = await createUser(email, password);
 
-      const storageRef = ref(storage, displayName);
-      // const uploadTask = uploadBytesResumable(storageRef, file);
+      //Create a unique image name
+      const date = new Date().getTime();
+      const storageRef = ref(storage, `${displayName + date}`);
 
       await uploadBytesResumable(storageRef, file).then(() => {
         getDownloadURL(storageRef).then(async (downloadURL) => {
@@ -47,11 +50,10 @@ const Register = () => {
           } catch (err) {
             console.log(err);
             setError(true);
-            // setLoading(false);
           }
         });
       });
-    } catch (error) {
+    } catch (err) {
       setError(true);
     }
   };
