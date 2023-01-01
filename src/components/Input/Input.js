@@ -10,6 +10,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
 import { db, storage } from "../../firebase/firebase";
 import attach from "../../img/attach.png";
+import Img from "../../img/img.png";
 import { v4 as uuid } from "uuid";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -70,12 +71,17 @@ const Input = () => {
     setImg(null);
   };
 
+  const handleSendMessage = (e) => {
+    e.code === "Enter" && handleSend();
+  };
+
   return (
     <div className="input">
       <input
         type="text"
         placeholder="Type something ..."
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleSendMessage}
         value={text}
       />
       <div className="send">
@@ -87,7 +93,7 @@ const Input = () => {
           onChange={(e) => setImg(e.target.files[0])}
         />
         <label htmlFor="file">
-          <img src="" alt="" />
+          <img src={Img} alt="" />
         </label>
         <button onClick={handleSend}>Send</button>
       </div>
